@@ -56,7 +56,7 @@ pub fn load_objs(content: String) -> Vec<SpeckleBase> {
     // # Step 1: Read and store all objects
     let mut object_map: HashMap<String, Value> = HashMap::new();
     for line in content.lines() {
-        let Some((_, json_str)) = line.split_once('\t') else {
+        let Some((id, json_str)) = line.split_once('\t') else {
             continue;
         };
         let Ok(json) = serde_json::from_str::<Value>(json_str) else {
@@ -65,19 +65,18 @@ pub fn load_objs(content: String) -> Vec<SpeckleBase> {
         let Some(_speckle_type) = json.get("speckle_type") else {
             continue;
         };
-        let Some(id) = json.get("id") else {
-            continue;
-        };
-        if let Some(id) = id.as_str() {
-            object_map.insert(id.to_string(), json);
-        }
+        // let Some(id) = json.get("id") else {
+        //     continue;
+        // };
+        object_map.insert(id.to_string(), json);
     }
 
     let mut base_objs = Vec::<SpeckleBase>::new();
 
     // # Step 2: Resolve references and extract mesh data
     for (_id, obj) in object_map.iter() {
-        if let Some(speckle_base) = get_speckle_base(obj, &object_map) {
+        if let Some(mut speckle_base) = get_speckle_base(obj, &object_map) {
+            speckle_base.id = _id.to_owned();
             base_objs.push(speckle_base);
         }
     }
