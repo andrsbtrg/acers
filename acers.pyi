@@ -1,0 +1,3 @@
+from typing import List
+
+def clash_detection(a: str, b: str) -> List[tuple[float, float]]: ...
